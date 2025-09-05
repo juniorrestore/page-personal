@@ -1,6 +1,5 @@
 import database from 'infra/database';
 import crypto from 'node:crypto';
-import { validate } from 'uuid';
 
 const expirationInMilliseconds = 60 * 60 * 1 * 1000;
 

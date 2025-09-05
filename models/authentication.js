@@ -1,8 +1,4 @@
-import {
-  InternalServerError,
-  NotFoundError,
-  UnauthorizedError,
-} from 'infra/errors';
+import { NotFoundError, UnauthorizedError } from 'infra/errors';
 import password from './password';
 import user from './user';
 
