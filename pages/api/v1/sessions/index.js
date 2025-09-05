@@ -1,6 +1,5 @@
 import { createRouter } from 'next-connect';
 import controller from 'infra/controller.js';
-import { UnauthorizedError } from 'infra/errors';
 import authentication from 'models/authentication';
 import session from 'models/session';
 import * as cookie from 'cookie';
