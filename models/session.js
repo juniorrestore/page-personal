@@ -1,4 +1,3 @@
-import controller from 'infra/controller';
 import database from 'infra/database';
 import { NotFoundError, UnauthorizedError } from 'infra/errors';
 import crypto from 'node:crypto';
