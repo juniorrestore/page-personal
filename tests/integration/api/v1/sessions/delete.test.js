@@ -47,7 +47,7 @@ describe('DELETE to /api/v1/session', () => {
       const parserSetCookie = setCookieParser(response, { map: true });
       expect(parserSetCookie.session_id).toEqual({
         name: 'session_id',
-        value: sessionObject.token,
+        value: 'invalid',
         maxAge: -1,
         httpOnly: true,
         path: '/',
