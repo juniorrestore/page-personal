@@ -29,7 +29,7 @@ async function deleteHandler(request, response) {
 
   const expireSession = await session.expireById(sessionObject.id);
 
-  controller.clearSessionCookie(sessionToken, response);
+  controller.clearSessionCookie(response);
 
   return response.status(200).json(expireSession);
 }

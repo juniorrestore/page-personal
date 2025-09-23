@@ -14,11 +14,11 @@ function onNoMatchHandler(request, response) {
 }
 
 function onErrorHandler(error, request, response) {
-  if (
-    error instanceof ValidationError ||
-    error instanceof NotFoundError ||
-    error instanceof UnauthorizedError
-  ) {
+  if (error instanceof ValidationError || error instanceof NotFoundError) {
+    return response.status(error.statusCode).json(error);
+  }
+  if (error instanceof UnauthorizedError) {
+    clearSessionCookie(response);
     return response.status(error.statusCode).json(error);
   }
   const publicErrorObject = new InternalServerError({
@@ -43,8 +43,8 @@ export async function setSessionCookie(sessionToken, response) {
   response.setHeader('Set-Cookie', setCookie);
 }
 
-export async function clearSessionCookie(sessionToken, response) {
-  const setCookie = cookie.serialize('session_id', sessionToken, {
+export async function clearSessionCookie(response) {
+  const setCookie = cookie.serialize('session_id', 'invalid', {
     path: '/',
     maxAge: -1,
     secure: process.env.NODE_ENV === 'production',
