@@ -30,8 +30,6 @@ function onErrorHandler(error, request, response) {
   response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
 
-export async function errorHandlers() {}
-
 export async function setSessionCookie(sessionToken, response) {
   const setCookie = cookie.serialize('session_id', sessionToken, {
     path: '/',
