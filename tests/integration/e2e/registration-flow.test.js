@@ -1,4 +1,5 @@
 import activation from 'models/activation';
+import user from 'models/user';
 import orchestrator from 'tests/orchestrator';
 import { version as uuidVersion } from 'uuid';
 
@@ -10,7 +11,8 @@ beforeAll(async () => {
 });
 
 describe('E2E: Registration Flow (all successful)', () => {
-  let responseBody;
+  let userResponseBody;
+  let tokenValid;
   test('Create user account', async () => {
     const response = await fetch('http://localhost:3000/api/v1/users', {
       method: 'POST',
@@ -21,20 +23,20 @@ describe('E2E: Registration Flow (all successful)', () => {
         password: 'senha123',
       }),
     });
-    responseBody = await response.json();
+    userResponseBody = await response.json();
     expect(response.status).toBe(201);
-    expect(responseBody).toEqual({
-      id: responseBody.id,
+    expect(userResponseBody).toEqual({
+      id: userResponseBody.id,
       username: 'gilmario',
       email: 'registration-flow@qaxsolutions.com',
-      password: responseBody.password,
+      password: userResponseBody.password,
       features: ['read:activation_token'],
-      create_at: responseBody.create_at,
-      update_at: responseBody.update_at,
+      create_at: userResponseBody.create_at,
+      update_at: userResponseBody.update_at,
     });
-    expect(uuidVersion(responseBody.id)).toBe(4);
-    expect(Date.parse(responseBody.create_at)).not.toBeNaN();
-    expect(Date.parse(responseBody.update_at)).not.toBeNaN();
+    expect(uuidVersion(userResponseBody.id)).toBe(4);
+    expect(Date.parse(userResponseBody.create_at)).not.toBeNaN();
+    expect(Date.parse(userResponseBody.update_at)).not.toBeNaN();
   });
 
   test('Receive activation email', async () => {
@@ -42,11 +44,11 @@ describe('E2E: Registration Flow (all successful)', () => {
     const tokenEmail = lastEmail.body.match(
       /Token de ativação:\s*([0-9a-fA-F-]{36})/,
     );
-    const tokenValid = await activation.getTokenValid(tokenEmail[1]);
+    tokenValid = await activation.getTokenValid(tokenEmail[1]);
 
     expect(tokenValid.used_at).toBeNull();
     expect(tokenValid.id).toBeDefined();
-    expect(tokenValid.user_id).toBe(responseBody.id);
+    expect(tokenValid.user_id).toBe(userResponseBody.id);
     expect(lastEmail.sender).toBe('<contato@qaxsolutions.com>');
     expect(lastEmail.recipients).toEqual([
       '<registration-flow@qaxsolutions.com>',
@@ -56,7 +58,23 @@ describe('E2E: Registration Flow (all successful)', () => {
       'Por favor, ative sua conta usando o token abaixo',
     );
   });
-  test('Activate account', async () => {});
+
+  test('Activate account', async () => {
+    const result = await fetch(
+      `http://localhost:3000/api/v1/activations/${tokenValid.id}`,
+      {
+        method: 'PATCH',
+      },
+    );
+
+    expect(result.status).toBe(200);
+    const responseBody = await result.json();
+    expect(responseBody.user_id).toBe(userResponseBody.id);
+    const activateUser = await user.findOneById(userResponseBody.id);
+    expect(activateUser.features).toEqual(['create:session']);
+    expect(responseBody.used_at).not.toBeNull();
+  });
+
   test('Login', async () => {});
   test('Get user information', async () => {});
 });
