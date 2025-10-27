@@ -21,5 +21,9 @@ test('test from infra/email.js', async () => {
     html: '<p>Body of Last Email</p>',
   });
   const lastEmail = await orchestrator.getLastEmail();
-  console.log(lastEmail);
+
+  expect(lastEmail.sender).toBe('<junior.tester@example.com>');
+  expect(lastEmail.recipients).toEqual(['<contact@example.com>']);
+  expect(lastEmail.subject).toBe('Last Email');
+  expect(lastEmail.body).toContain('Body of Last Email');
 });
