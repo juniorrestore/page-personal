@@ -94,6 +94,7 @@ describe('PATCH to /api/v1/users/[username]', () => {
         username: 'unique2',
         email: user.email,
         password: responseBody.password,
+        features: ['read:activation_token'],
         create_at: responseBody.create_at,
         update_at: responseBody.update_at,
       });
@@ -123,6 +124,7 @@ describe('PATCH to /api/v1/users/[username]', () => {
         username: user.username,
         email: 'uniqueEmail@qaxsolutions.com',
         password: responseBody.password,
+        features: ['read:activation_token'],
         create_at: responseBody.create_at,
         update_at: responseBody.update_at,
       });
@@ -152,6 +154,7 @@ describe('PATCH to /api/v1/users/[username]', () => {
         username: user.username,
         email: user.email,
         password: responseBody.password,
+        features: ['read:activation_token'],
         create_at: responseBody.create_at,
         update_at: responseBody.update_at,
       });

@@ -36,6 +36,7 @@ describe('Get to /api/v1/user', () => {
         create_at: createdUser.create_at.toISOString(),
         update_at: createdUser.update_at.toISOString(),
         password: createdUser.password,
+        features: ['read:activation_token'],
       });
 
       //Tests if the session was renewed
@@ -90,6 +91,7 @@ describe('Get to /api/v1/user', () => {
         create_at: createdUser.create_at.toISOString(),
         update_at: createdUser.update_at.toISOString(),
         password: createdUser.password,
+        features: ['read:activation_token'],
       });
 
       //Tests if the session was renewed
