@@ -5,7 +5,7 @@ beforeAll(async () => {
   await orchestrator.waitForAllServices();
 });
 
-test('test from infra/email.js', async () => {
+test('validate infra/email.js', async () => {
   await orchestrator.clearEmail();
   await email.send({
     from: 'Junior<junior.tester@example.com>',
