@@ -8,11 +8,27 @@ beforeAll(async () => {
 });
 
 describe('Get to /api/v1/user', () => {
+  describe('Anonymous user', () => {
+    test('should return 403', async () => {
+      const result = await fetch('http://localhost:3000/api/v1/user');
+      const resultBody = await result.json();
+      expect(result.status).toBe(403);
+      expect(resultBody).toEqual({
+        action: 'Verifique suas permissões.',
+        message: 'Acesso negado.',
+        name: 'ForbiddenError',
+        status_code: 403,
+      });
+    });
+  });
   describe('Default User', () => {
     test('with valid session', async () => {
       const createdUser = await orchestrator.createUser({
         username: 'validUserSession',
       });
+      const activatedUser = await orchestrator.activateUserByUserId(
+        createdUser.id,
+      );
       const sessionObject = await orchestrator.createSession(createdUser.id);
       const response = await fetch('http://localhost:3000/api/v1/user', {
         method: 'GET',
@@ -34,9 +50,9 @@ describe('Get to /api/v1/user', () => {
         username: 'validUserSession',
         email: createdUser.email,
         create_at: createdUser.create_at.toISOString(),
-        update_at: createdUser.update_at.toISOString(),
+        update_at: activatedUser.update_at.toISOString(),
         password: createdUser.password,
-        features: ['read:activation_token'],
+        features: ['read:session', 'create:session'],
       });
 
       //Tests if the session was renewed
@@ -73,6 +89,9 @@ describe('Get to /api/v1/user', () => {
       const createdUser = await orchestrator.createUser({
         username: 'userCloseToExpireSession',
       });
+      const activatedUser = await orchestrator.activateUserByUserId(
+        createdUser.id,
+      );
       const sessionObject = await orchestrator.createSession(createdUser.id);
       const response = await fetch('http://localhost:3000/api/v1/user', {
         method: 'GET',
@@ -89,9 +108,9 @@ describe('Get to /api/v1/user', () => {
         username: 'userCloseToExpireSession',
         email: createdUser.email,
         create_at: createdUser.create_at.toISOString(),
-        update_at: createdUser.update_at.toISOString(),
+        update_at: activatedUser.update_at.toISOString(),
         password: createdUser.password,
-        features: ['read:activation_token'],
+        features: ['read:session', 'create:session'],
       });
 
       //Tests if the session was renewed

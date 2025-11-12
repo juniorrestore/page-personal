@@ -1,3 +1,4 @@
+import email from 'infra/email';
 import activation from 'models/activation';
 import user from 'models/user';
 import orchestrator from 'tests/orchestrator';
@@ -12,6 +13,7 @@ beforeAll(async () => {
 
 describe('E2E: Registration Flow (all successful)', () => {
   let userResponseBody;
+  let userLoginResponseBody;
   let tokenValid;
   test('Create user account', async () => {
     const response = await fetch('http://localhost:3000/api/v1/users', {
@@ -71,10 +73,37 @@ describe('E2E: Registration Flow (all successful)', () => {
     const responseBody = await result.json();
     expect(responseBody.user_id).toBe(userResponseBody.id);
     const activateUser = await user.findOneById(userResponseBody.id);
-    expect(activateUser.features).toEqual(['create:session']);
+    expect(activateUser.features).toEqual(['read:session', 'create:session']);
     expect(responseBody.used_at).not.toBeNull();
   });
 
-  test('Login', async () => {});
-  test('Get user information', async () => {});
+  test('Login', async () => {
+    const userLoginResponse = await fetch(
+      'http://localhost:3000/api/v1/sessions',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'registration-flow@qaxsolutions.com',
+          password: 'senha123',
+        }),
+      },
+    );
+
+    expect(userLoginResponse.status).toBe(201);
+    userLoginResponseBody = await userLoginResponse.json();
+    expect(userLoginResponseBody.user_id).toEqual(userResponseBody.id);
+  });
+
+  test('Get user information', async () => {
+    const userResponse = await fetch('http://localhost:3000/api/v1/user', {
+      headers: {
+        Cookie: `session_id=${userLoginResponseBody.token}`,
+      },
+    });
+    const body = await userResponse.json();
+
+    expect(userResponse.status).toBe(200);
+    expect(userResponseBody.id).toBe(body.id);
+  });
 });

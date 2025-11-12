@@ -2,10 +2,14 @@ import { createRouter } from 'next-connect';
 import controller from 'infra/controller.js';
 import authentication from 'models/authentication';
 import session from 'models/session';
+import middlewares from 'infra/middlewares';
+import authorization from 'models/authorization';
+import { ForbiddenError } from 'infra/errors';
 
 const router = createRouter();
 
-router.post(postHandler);
+router.use(middlewares.injectAnonymousOrUser);
+router.post(middlewares.canRequest('create:session'), postHandler);
 router.delete(deleteHandler);
 
 export default router.handler(controller.errorHandlers);
@@ -16,6 +20,10 @@ async function postHandler(request, response) {
     userValues.email,
     userValues.password,
   );
+
+  if (!authorization.can(authenticatedUser, 'create:session')) {
+    throw new ForbiddenError({});
+  }
 
   const sessionCreated = await session.create(authenticatedUser.id);
   controller.setSessionCookie(sessionCreated.token, response);

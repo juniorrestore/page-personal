@@ -4,6 +4,8 @@ import database from 'infra/database';
 import migrator from 'models/migrator';
 import user from 'models/user';
 import session from 'models/session';
+import { act } from 'react';
+import activation from 'models/activation';
 
 const emailApiUrl = 'http://localhost:1080';
 
@@ -59,6 +61,10 @@ async function createUser(userValues) {
 async function clearEmail() {
   await fetch(`${emailApiUrl}/messages`, { method: 'DELETE' });
 }
+async function activateUserByUserId(userId) {
+  const activedUser = await activation.activateUserByUserId(userId);
+  return activedUser;
+}
 async function getLastEmail() {
   const emailResponse = await fetch(`${emailApiUrl}/messages`);
   const emailList = await emailResponse.json();
@@ -80,6 +86,7 @@ const orchestrator = {
   createSession,
   clearEmail,
   getLastEmail,
+  activateUserByUserId,
 };
 
 export default orchestrator;

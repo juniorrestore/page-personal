@@ -1,8 +1,9 @@
 import database from 'infra/database';
 import email from 'infra/email';
-import { NotFoundError } from 'infra/errors';
+import { ForbiddenError, NotFoundError } from 'infra/errors';
 import webserver from 'infra/webserver';
 import user from 'models/user';
+import authorization from './authorization';
 
 const EXPIRATION_IN_MILLISECONDS = 12 * 60 * 60 * 1000; // 12 hours
 async function create(userId) {
@@ -79,7 +80,17 @@ async function markAsUsed(tokenId) {
   }
 }
 async function activateUserByUserId(userId) {
-  const activedUser = await user.setFeatures(userId, ['create:session']);
+  const userToActivate = await user.findOneById(userId);
+  if (authorization.can(userToActivate, 'read:acivation_token')) {
+    throw new ForbiddenError({
+      message: 'Não é possível ativar esta conta',
+      action: 'Solicita uma nova ativação ou verifique se sua conta está ativa',
+    });
+  }
+  const activedUser = await user.setFeatures(userId, [
+    'read:session',
+    'create:session',
+  ]);
   return activedUser;
 }
 
