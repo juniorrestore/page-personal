@@ -71,10 +71,11 @@ describe('POST to /api/v1/sessions', () => {
       });
     });
     test('With correct email and correct password', async () => {
-      await orchestrator.createUser({
+      const createdUser = await orchestrator.createUser({
         email: 'tudo-correta@qaxsolutiuons.com',
         password: 'senha-correta',
       });
+      await orchestrator.activateUserByUserId(createdUser.id);
       const response = await fetch('http://localhost:3000/api/v1/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
