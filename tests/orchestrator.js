@@ -4,7 +4,6 @@ import database from 'infra/database';
 import migrator from 'models/migrator';
 import user from 'models/user';
 import session from 'models/session';
-import { act } from 'react';
 import activation from 'models/activation';
 
 const emailApiUrl = 'http://localhost:1080';

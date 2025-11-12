@@ -1,4 +1,3 @@
-import email from 'infra/email';
 import activation from 'models/activation';
 import user from 'models/user';
 import orchestrator from 'tests/orchestrator';
