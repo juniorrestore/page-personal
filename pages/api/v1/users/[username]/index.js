@@ -1,9 +1,11 @@
 import { createRouter } from 'next-connect';
 import controller from 'infra/controller.js';
 import user from 'models/user.js';
+import middlewares from 'infra/middlewares';
 
 const router = createRouter();
 
+router.use(middlewares.injectAnonymousOrUser);
 router.get(getHandler);
 router.patch(patchHandler);
 
