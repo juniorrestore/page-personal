@@ -39,10 +39,10 @@ async function sendEmailToUser(user, activationToken) {
   });
 }
 async function getTokenValid(token) {
-  const result = await runInsertQuery();
+  const result = await runSelectQuery();
   return result;
 
-  async function runInsertQuery() {
+  async function runSelectQuery() {
     const result = await database.query({
       text: `
           SELECT *
@@ -54,7 +54,7 @@ async function getTokenValid(token) {
       values: [token],
     });
     if (result.rows.length === 0) {
-      throw NotFoundError({
+      throw new NotFoundError({
         message: 'Token de ativação inválido ou não encontrado',
         action: 'Faça um novo cadastro',
       });
@@ -95,6 +95,7 @@ async function activateUserByUserId(userId) {
 }
 
 const activation = {
+  EXPIRATION_IN_MILLISECONDS,
   activateUserByUserId,
   getTokenValid,
   create,

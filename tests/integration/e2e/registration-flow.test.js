@@ -25,6 +25,7 @@ describe('E2E: Registration Flow (all successful)', () => {
       }),
     });
     userResponseBody = await response.json();
+
     expect(response.status).toBe(201);
     expect(userResponseBody).toEqual({
       id: userResponseBody.id,
