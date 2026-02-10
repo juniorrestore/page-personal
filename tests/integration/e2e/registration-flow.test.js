@@ -73,7 +73,11 @@ describe('E2E: Registration Flow (all successful)', () => {
     const responseBody = await result.json();
     expect(responseBody.user_id).toBe(userResponseBody.id);
     const activateUser = await user.findOneById(userResponseBody.id);
-    expect(activateUser.features).toEqual(['read:session', 'create:session']);
+    expect(activateUser.features).toEqual([
+      'read:session',
+      'create:session',
+      'update:user',
+    ]);
     expect(responseBody.used_at).not.toBeNull();
   });
 
