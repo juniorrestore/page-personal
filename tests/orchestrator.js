@@ -77,6 +77,10 @@ async function getLastEmail() {
   lastEmail.body = await bodyLastEmail.text();
   return lastEmail;
 }
+async function addFeaturesToUser(userObject, features) {
+  const updatedUUser = await user.addFeatures(userObject.id, features);
+  return updatedUUser;
+}
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
@@ -86,6 +90,7 @@ const orchestrator = {
   clearEmail,
   getLastEmail,
   activateUserByUserId,
+  addFeaturesToUser,
 };
 
 export default orchestrator;

@@ -255,4 +255,37 @@ describe('PATCH to /api/v1/users/[username]', () => {
       expect(correctPasswordMatch).toBe(true);
     });
   });
+  describe('Administrator user', () => {
+    test('With user privileged targeting default user', async () => {
+      const user = await orchestrator.createUser({});
+      const activatedUser = await orchestrator.activateUserByUserId(user.id);
+      await orchestrator.addFeaturesToUser(user, ['update:user:other']);
+      const sessionObject = await orchestrator.createSession(activatedUser.id);
+      const userDefault = await orchestrator.createUser({});
+
+      const response = await fetch(
+        `http://localhost:3000/api/v1/users/${userDefault.username}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Cookie: `session_id=${sessionObject.token}`,
+          },
+          body: JSON.stringify({ username: 'user3' }),
+        },
+      );
+
+      const responseBody = await response.json();
+      expect(response.status).toBe(201);
+      expect(responseBody).toEqual({
+        id: userDefault.id,
+        username: 'user3',
+        email: userDefault.email,
+        password: userDefault.password,
+        features: ['read:activation_token'],
+        create_at: responseBody.create_at,
+        update_at: responseBody.update_at,
+      });
+    });
+  });
 });

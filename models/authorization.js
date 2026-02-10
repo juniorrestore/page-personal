@@ -6,11 +6,8 @@ function can(user, features, resource) {
   }
 
   if (features === 'update:user' && resource) {
-    console.log('entrou aqui');
     authorized = false;
-    console.log('user.id', user.id);
-    console.log('resource.id', resource.id);
-    if (user.id == resource.id) {
+    if (user.id == resource.id || can(user, 'update:user:other')) {
       authorized = true;
     }
   }
