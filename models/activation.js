@@ -91,6 +91,7 @@ async function activateUserByUserId(userId) {
     'read:session',
     'create:session',
     'update:user',
+    'read:status',
   ]);
   return activedUser;
 }

@@ -14,25 +14,38 @@ router.patch(middlewares.canRequest('update:user'), patchHandler);
 export default router.handler(controller.errorHandlers);
 
 async function getHandler(request, response) {
+  const userTryingToGet = request.context.user;
   const username = request.query.username;
   const found = await user.findOneByUsername(username);
-  return response.status(200).json(found);
+
+  const secureValues = authorization.filterOutput(
+    userTryingToGet,
+    'read:user',
+    found,
+  );
+
+  return response.status(200).json(secureValues);
 }
 
 async function patchHandler(request, response) {
   const username = request.query.username;
   const userInputValues = request.body;
-
-  const userTryingToUpdate = request.context.user;
+  const userTryingToPatch = request.context.user;
   const targetUser = await user.findOneByUsername(username);
 
-  if (!authorization.can(userTryingToUpdate, 'update:user', targetUser)) {
-    console.log('entrou aqui');
+  if (!authorization.can(userTryingToPatch, 'update:user', targetUser)) {
     throw new ForbiddenError({
       message: 'Usuário não tem permissão para atualizar este recurso',
-      action: 'Verifique sjuas permissões de usuario',
+      action: 'Verifique suas permissões de usuário',
     });
   }
   const updatedUser = await user.update(username, userInputValues);
-  return response.status(201).json(updatedUser);
+
+  const secureValues = authorization.filterOutput(
+    userTryingToPatch,
+    'read:user',
+    updatedUser,
+  );
+
+  return response.status(201).json(secureValues);
 }

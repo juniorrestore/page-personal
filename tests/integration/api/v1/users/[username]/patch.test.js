@@ -1,6 +1,7 @@
 import orchestrator from 'tests/orchestrator.js';
 import { version as uuidVersion } from 'uuid';
 import password from 'models/password';
+import user from 'models/user';
 
 beforeAll(async () => {
   await orchestrator.clearDatabase();
@@ -79,7 +80,7 @@ describe('PATCH to /api/v1/users/[username]', () => {
       expect(response.status).toBe(403);
       expect(responseBody).toEqual({
         name: 'ForbiddenError',
-        action: 'Verifique sjuas permissões de usuario',
+        action: 'Verifique suas permissões de usuário',
         message: 'Usuário não tem permissão para atualizar este recurso',
         status_code: 403,
       });
@@ -166,9 +167,12 @@ describe('PATCH to /api/v1/users/[username]', () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: 'unique2',
-        email: user.email,
-        password: responseBody.password,
-        features: ['read:session', 'create:session', 'update:user'],
+        features: [
+          'read:session',
+          'create:session',
+          'update:user',
+          'read:status',
+        ],
         create_at: responseBody.create_at,
         update_at: responseBody.update_at,
       });
@@ -201,9 +205,12 @@ describe('PATCH to /api/v1/users/[username]', () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: user.username,
-        email: 'uniqueEmail@qaxsolutions.com',
-        password: responseBody.password,
-        features: ['read:session', 'create:session', 'update:user'],
+        features: [
+          'read:session',
+          'create:session',
+          'update:user',
+          'read:status',
+        ],
         create_at: responseBody.create_at,
         update_at: responseBody.update_at,
       });
@@ -215,12 +222,14 @@ describe('PATCH to /api/v1/users/[username]', () => {
     });
 
     test('With new "password"', async () => {
-      const user = await orchestrator.createUser({});
-      const activatedUser = await orchestrator.activateUserByUserId(user.id);
+      const userDefault = await orchestrator.createUser({});
+      const activatedUser = await orchestrator.activateUserByUserId(
+        userDefault.id,
+      );
       const sessionObject = await orchestrator.createSession(activatedUser.id);
 
       const response = await fetch(
-        `http://localhost:3000/api/v1/users/${user.username}`,
+        `http://localhost:3000/api/v1/users/${userDefault.username}`,
         {
           method: 'PATCH',
           headers: {
@@ -235,10 +244,13 @@ describe('PATCH to /api/v1/users/[username]', () => {
       expect(response.status).toBe(201);
       expect(responseBody).toEqual({
         id: responseBody.id,
-        username: user.username,
-        email: user.email,
-        password: responseBody.password,
-        features: ['read:session', 'create:session', 'update:user'],
+        username: userDefault.username,
+        features: [
+          'read:session',
+          'create:session',
+          'update:user',
+          'read:status',
+        ],
         create_at: responseBody.create_at,
         update_at: responseBody.update_at,
       });
@@ -248,9 +260,11 @@ describe('PATCH to /api/v1/users/[username]', () => {
 
       expect(responseBody.update_at > responseBody.create_at).toBe(true);
 
+      const userInDatabase = await user.findOneById(userDefault.id);
+
       const correctPasswordMatch = await password.compare(
         'newPass',
-        responseBody.password,
+        userInDatabase.password,
       );
       expect(correctPasswordMatch).toBe(true);
     });
@@ -280,8 +294,6 @@ describe('PATCH to /api/v1/users/[username]', () => {
       expect(responseBody).toEqual({
         id: userDefault.id,
         username: 'user3',
-        email: userDefault.email,
-        password: userDefault.password,
         features: ['read:activation_token'],
         create_at: responseBody.create_at,
         update_at: responseBody.update_at,

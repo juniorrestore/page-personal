@@ -1,7 +1,7 @@
 import activation from 'models/activation';
 import orchestrator from 'tests/orchestrator';
 
-describe('PATCH /api/v1/activions/[token_id]', () => {
+describe('PATCH /api/v1/activations/[token_id]', () => {
   describe('Anonymous User', () => {
     test('with nonexistent token', async () => {
       const response = await fetch(
