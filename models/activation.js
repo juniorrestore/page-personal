@@ -81,7 +81,7 @@ async function markAsUsed(tokenId) {
 }
 async function activateUserByUserId(userId) {
   const userToActivate = await user.findOneById(userId);
-  if (authorization.can(userToActivate, 'read:acivation_token')) {
+  if (!authorization.can(userToActivate, 'read:activation_token')) {
     throw new ForbiddenError({
       message: 'Não é possível ativar esta conta',
       action: 'Solicita uma nova ativação ou verifique se sua conta está ativa',

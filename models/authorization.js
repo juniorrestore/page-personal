@@ -1,20 +1,47 @@
-function can(user, features, resource) {
+import { InternalServerError } from 'infra/errors';
+
+const availableFeatures = [
+  //USER
+  'read:user',
+  'create:user',
+  'update:user',
+  'update:user:other',
+
+  //SESSION
+  'read:session',
+  'create:session',
+
+  //ACTIVATION
+  'read:activation_token',
+
+  //STATUS
+  'read:status',
+  'read:status:admin',
+];
+
+function can(user, feature, target) {
+  validateUser(user);
+  validateFeatures(feature);
   let authorized = false;
 
-  if (user.features.includes(features)) {
+  if (user.features.includes(feature)) {
     authorized = true;
   }
 
-  if (features === 'update:user' && resource) {
+  if (feature === 'update:user' && target) {
     authorized = false;
-    if (user.id == resource.id || can(user, 'update:user:other')) {
+    if (user.id == target.id || can(user, 'update:user:other')) {
       authorized = true;
     }
   }
+
   return authorized;
 }
 
 function filterOutput(user, feature, target) {
+  validateUser(user);
+  validateFeatures(feature);
+  validateTarget(target);
   if (feature === 'read:user') {
     return {
       id: target.id,
@@ -51,25 +78,46 @@ function filterOutput(user, feature, target) {
   }
 
   if (feature.includes('read:status')) {
-    if (feature.includes('read:status:admin')) {
-      return {
-        update_at: target.updateAt,
-        database: {
-          max_connections: target.statusData.max_connections,
-          active_users: target.statusData.active_users,
-          version: target.statusData.version,
-        },
-      };
-    }
-    return {
+    const result = {
       update_at: target.updateAt,
       database: {
         max_connections: target.statusData.max_connections,
         active_users: target.statusData.active_users,
       },
     };
+
+    if (user.features.includes('read:status:admin')) {
+      result.database.version = target.statusData.version;
+    }
+
+    return result;
   }
 }
+
+function validateUser(user) {
+  if (!user || !user.features) {
+    throw new InternalServerError({
+      cause: 'User or user.features is required',
+    });
+  }
+}
+
+function validateFeatures(features) {
+  if (!features || !availableFeatures.includes(features)) {
+    throw new InternalServerError({
+      cause: 'It is necessary to inform a valid feature',
+    });
+  }
+}
+
+function validateTarget(target) {
+  if (!target) {
+    throw new InternalServerError({
+      cause: 'It is necessary to inform a Target',
+    });
+  }
+}
+
 const authorization = {
   can,
   filterOutput,

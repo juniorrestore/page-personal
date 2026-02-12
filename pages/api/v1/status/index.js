@@ -18,7 +18,7 @@ async function getHandler(request, response) {
   const statusData = await statusDatabase.get();
   const secureValues = authorization.filterOutput(
     tryingUserGet,
-    tryingUserGet.features,
+    'read:status',
     { updateAt, statusData },
   );
 
