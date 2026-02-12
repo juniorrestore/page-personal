@@ -30,8 +30,6 @@ describe('E2E: Registration Flow (all successful)', () => {
     expect(userResponseBody).toEqual({
       id: userResponseBody.id,
       username: 'gilmario',
-      email: 'registration-flow@qaxsolutions.com',
-      password: userResponseBody.password,
       features: ['read:activation_token'],
       create_at: userResponseBody.create_at,
       update_at: userResponseBody.update_at,
@@ -77,6 +75,7 @@ describe('E2E: Registration Flow (all successful)', () => {
       'read:session',
       'create:session',
       'update:user',
+      'read:status',
     ]);
     expect(responseBody.used_at).not.toBeNull();
   });

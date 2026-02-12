@@ -26,10 +26,8 @@ describe('GET to /api/v1/users/[username]', () => {
       expect(response2Body).toEqual({
         id: response2Body.id,
         username: 'gilmario',
-        email: 'gilmario@qaxsolutions.com',
         create_at: response2Body.create_at,
         update_at: response2Body.update_at,
-        password: response2Body.password,
         features: ['read:activation_token'],
       });
       expect(uuidVersion(response2Body.id)).toBe(4);
@@ -39,7 +37,6 @@ describe('GET to /api/v1/users/[username]', () => {
     test('With case mismatch', async () => {
       await orchestrator.createUser({
         username: 'MisMatch',
-        email: 'mismatch@qaxsolutions.com',
       });
 
       const response2 = await fetch(
@@ -52,10 +49,8 @@ describe('GET to /api/v1/users/[username]', () => {
       expect(response2Body).toEqual({
         id: response2Body.id,
         username: 'MisMatch',
-        email: 'mismatch@qaxsolutions.com',
         create_at: response2Body.create_at,
         update_at: response2Body.update_at,
-        password: response2Body.password,
         features: ['read:activation_token'],
       });
       expect(uuidVersion(response2Body.id)).toBe(4);
