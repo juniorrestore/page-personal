@@ -9,7 +9,7 @@ describe('Get to /api/v1/status', () => {
   describe('with an anonymous user', () => {
     test('should return status without version', async () => {
       const response = await fetch('http://localhost:3000/api/v1/status');
-      const responseBody = (await response.json()).secureValues;
+      const responseBody = await response.json();
       expect(response.status).toBe(200);
       expect(responseBody.database.max_connections).toBe(100);
       expect(responseBody.database.active_users).toBeGreaterThan(0);
@@ -29,8 +29,8 @@ describe('Get to /api/v1/status', () => {
           Cookie: `session_id=${sessionObject.token}`,
         },
       });
-      const responseBody = (await response.json()).secureValues;
-      console.log('responseBody', responseBody);
+      const responseBody = await response.json();
+
       expect(response.status).toBe(200);
       expect(responseBody.database.max_connections).toBe(100);
       expect(responseBody.database.active_users).toBeGreaterThan(0);
