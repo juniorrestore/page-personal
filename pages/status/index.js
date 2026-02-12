@@ -27,17 +27,30 @@ function UpdateAt() {
 }
 
 function BaseData() {
+  setTimeout(() => {}, 10000);
   const { data, isLoading } = useSWR('/api/v1/status', fetchAPI);
-  let baseVersion = 'Carregando ...';
+  let baseVersion = '';
   let activeUsers = '';
-  if (!isLoading) {
-    baseVersion = data.database.version;
-    activeUsers = `Usuários ativos: ${data.database.active_users}`;
+  let maxConnections = '';
+  if (data) {
+    baseVersion =
+      data.database?.version ||
+      'Versão disponível somente para administradores';
+    activeUsers = data.database?.active_users || 'Não disponível';
+    maxConnections = data.database?.max_connections || 'Não disponível';
   }
+
   return (
-    <div>
-      <p>Versão: {baseVersion}</p>
-      <p>{activeUsers}</p>
-    </div>
+    <>
+      {isLoading ? (
+        <p>Carregando dados do banco...</p>
+      ) : (
+        <div>
+          <p>Versão: {baseVersion}</p>
+          <p>Usuários ativos: {activeUsers}</p>
+          <p>Máximo de conexões: {maxConnections}</p>
+        </div>
+      )}
+    </>
   );
 }
